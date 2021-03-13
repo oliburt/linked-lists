@@ -1,5 +1,6 @@
 use std::mem;
 
+/// A bad Singly Linked Stack of i32 elements
 pub struct List {
     head: Link,
 }
@@ -14,10 +15,12 @@ enum Link {
 }
 
 impl List {
+    /// Returns a new empty list
     pub fn new() -> Self {
         List { head: Link::Empty }
     }
 
+    /// Pushes a new element onto the stack
     pub fn push(&mut self, elem: i32) {
         let new_node = Box::new(Node {
             elem,
@@ -27,6 +30,7 @@ impl List {
         self.head = Link::More(new_node);
     }
 
+    /// Pops the last element off the stack
     pub fn pop(&mut self) -> Option<i32> {
         match mem::replace(&mut self.head, Link::Empty) {
             Link::Empty => None,
@@ -35,5 +39,38 @@ impl List {
                 Some(node.elem)
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::List;
+    #[test]
+    fn basics() {
+        let mut list = List::new();
+
+        // Check empty list behaves right
+        assert_eq!(list.pop(), None);
+
+        // Populate list
+        list.push(1);
+        list.push(2);
+        list.push(3);
+
+        // Check removal
+        assert_eq!(list.pop(), Some(3));
+        assert_eq!(list.pop(), Some(2));
+
+        // Push some more to make sure nothing is corrupted
+        list.push(4);
+        list.push(5);
+
+        // Check normal removal
+        assert_eq!(list.pop(), Some(5));
+        assert_eq!(list.pop(), Some(4));
+
+        // Check exhaustion
+        assert_eq!(list.pop(), Some(1));
+        assert_eq!(list.pop(), None);
     }
 }
