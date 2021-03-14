@@ -33,6 +33,16 @@ impl<T> List<T> {
             node.elem
         })
     }
+
+    /// Returns and Option wrapped pointer to the head of the stack
+    pub fn peek(&self) -> Option<&T> {
+        self.head.as_ref().map(|node| &node.elem)
+    }
+
+    /// Returns and Option wrapped mutable pointer to the head of the stack
+    pub fn peek_mut(&mut self) -> Option<&mut T> {
+        self.head.as_mut().map(|node| &mut node.elem)
+    }
 }
 
 // Manual Implementation of drop to avoid "tail recursive" drop implemented
@@ -77,5 +87,18 @@ mod test {
         // Check exhaustion
         assert_eq!(list.pop(), Some(1));
         assert_eq!(list.pop(), None);
+    }
+
+    fn peek() {
+        let mut list = List::new();
+
+        assert_eq!(list.peek(), None);
+        assert_eq!(list.peek_mut(), None);
+        list.push(1);
+        list.push(2);
+        list.push(3);
+
+        assert_eq!(list.peek(), Some(&3));
+        assert_eq!(list.peek_mut(), Some(&mut 3));
     }
 }
