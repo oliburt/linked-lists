@@ -89,6 +89,7 @@ mod test {
         assert_eq!(list.pop(), None);
     }
 
+    #[test]
     fn peek() {
         let mut list = List::new();
 
