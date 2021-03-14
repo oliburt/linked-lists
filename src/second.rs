@@ -1,6 +1,4 @@
-use std::mem;
-
-/// A bad Singly Linked Stack of i32 elements
+/// An ok Singly Linked Stack using Option
 pub struct List {
     head: Link,
 }
@@ -9,36 +7,31 @@ struct Node {
     next: Link,
 }
 
-enum Link {
-    Empty,
-    More(Box<Node>),
-}
+// type alias
+type Link = Option<Box<Node>>;
 
 impl List {
     /// Returns a new empty list
     pub fn new() -> Self {
-        List { head: Link::Empty }
+        List { head: None }
     }
 
     /// Pushes a new element onto the stack
     pub fn push(&mut self, elem: i32) {
         let new_node = Box::new(Node {
             elem,
-            next: mem::replace(&mut self.head, Link::Empty),
+            next: self.head.take(),
         });
 
-        self.head = Link::More(new_node);
+        self.head = Some(new_node);
     }
 
     /// Pops the last element off the stack
     pub fn pop(&mut self) -> Option<i32> {
-        match mem::replace(&mut self.head, Link::Empty) {
-            Link::Empty => None,
-            Link::More(node) => {
-                self.head = node.next;
-                Some(node.elem)
-            }
-        }
+        self.head.take().map(|node| {
+            self.head = node.next;
+            node.elem
+        })
     }
 }
 
@@ -46,13 +39,10 @@ impl List {
 // by the compiler
 impl Drop for List {
     fn drop(&mut self) {
-        let mut cur_link = mem::replace(&mut self.head, Link::Empty);
+        let mut cur_link = self.head.take();
 
-        while let Link::More(mut boxed_node) = cur_link {
-            cur_link = mem::replace(&mut boxed_node.next, Link::Empty);
-            // boxed_node goes out of scope and gets dropped here;
-            // but its Node's `next` field has been set to Link::Empty
-            // so no unbounded recursion occurs
+        while let Some(mut boxed_node) = cur_link {
+            cur_link = boxed_node.next.take();
         }
     }
 }
