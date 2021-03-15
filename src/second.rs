@@ -43,6 +43,22 @@ impl<T> List<T> {
     pub fn peek_mut(&mut self) -> Option<&mut T> {
         self.head.as_mut().map(|node| &mut node.elem)
     }
+
+    pub fn iter(&self) -> Iter<T> {
+        Iter {
+            next: self.head.as_deref(),
+        }
+    }
+
+    pub fn iter_mut(&mut self) -> IterMut<'_, T> {
+        IterMut {
+            next: self.head.as_deref_mut(),
+        }
+    }
+
+    pub fn into_iter(self) -> IntoIter<T> {
+        IntoIter(self)
+    }
 }
 
 // Manual Implementation of drop to avoid "tail recursive" drop implemented
@@ -59,12 +75,6 @@ impl<T> Drop for List<T> {
 
 pub struct IntoIter<T>(List<T>);
 
-impl<T> List<T> {
-    pub fn into_iter(self) -> IntoIter<T> {
-        IntoIter(self)
-    }
-}
-
 impl<T> Iterator for IntoIter<T> {
     type Item = T;
     fn next(&mut self) -> Option<Self::Item> {
@@ -74,14 +84,6 @@ impl<T> Iterator for IntoIter<T> {
 
 pub struct Iter<'a, T> {
     next: Option<&'a Node<T>>,
-}
-
-impl<T> List<T> {
-    pub fn iter(&self) -> Iter<T> {
-        Iter {
-            next: self.head.as_deref(),
-        }
-    }
 }
 
 impl<'a, T> Iterator for Iter<'a, T> {
@@ -97,14 +99,6 @@ impl<'a, T> Iterator for Iter<'a, T> {
 
 pub struct IterMut<'a, T> {
     next: Option<&'a mut Node<T>>,
-}
-
-impl<T> List<T> {
-    pub fn iter_mut(&mut self) -> IterMut<'_, T> {
-        IterMut {
-            next: self.head.as_deref_mut(),
-        }
-    }
 }
 
 impl<'a, T> Iterator for IterMut<'a, T> {
